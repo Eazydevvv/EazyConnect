@@ -6,8 +6,8 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/AuthRoutes.js";
 import contactsRoutes from "./routes/ContactRoutes.js";
 import setupSocket from "./socket.js";
-import messagesRoutes from "./routes/messagesRoutes.js";
-// import messagesRoutes from "./routes/messagesRoutes.js";
+import messagesRoutes from "./routes/MessagesRoutes.js";
+
 
 
 dotenv.config();
