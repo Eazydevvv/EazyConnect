@@ -1,54 +1,46 @@
-import express from 'express';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import authRoutes from './routes/authRoutes.js';
-import messagesRoutes from './routes/MessagesRoutes.js';
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import mongoose from "mongoose";
+import authRoutes from "./routes/AuthRoutes.js";
+import contactsRoutes from "./routes/ContactRoutes.js";
+import setupSocket from "./socket.js";
+import messagesRoutes from "./routes/MessagesRoutes.js";
 
-// Load environment variables
+
+
 dotenv.config();
 
-// Initialize Express app
 const app = express();
+const port = process.env.PORT || 3001;
+const databaseUrl =  process.env.DATABASE_URL;
+const allowedOrigins = [
+    "http://localhost:5173", // For local development
+    "https://eazy-connect-app.vercel.app" // Your live Vercel frontend
+  ];
 
-// Middleware
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://eazy-connect-app.vercel.app"
-  ],
-  credentials: true
+    origin: process.env.ORIGIN,
+    methods: ["GET", "POST", "PUT", "PATCH","DELETE"],
+    credentials: true,
 }));
+
+app.use("/uploads/profiles", express.static("uploads/profiles"));
+app.use("/uploads/files", express.static("uploads/files"));
+
+app.use(cookieParser());
 app.use(express.json());
 
-// Database connection
-mongoose.connect(process.env.DATABASE_URL)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/messages', messagesRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/contacts",contactsRoutes);
+app.use("/api/messages",messagesRoutes);
 
-// Root route - fixes the "Cannot GET /" error
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'EazyConnect Backend is running',
-    endpoints: {
-      auth: '/api/auth',
-      messages: '/api/messages'
-    }
-  });
+const server = app.listen(port, () => {
+    console.log(`Server is runnning on port ${port}`);
 });
 
-// Error handling for undefined routes
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
+setupSocket(server)
 
-// Start server
-const PORT = process.env.PORT || 8747;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+mongoose.connect(databaseUrl ).then(() =>console.log("Database  connected")).catch((err) => console.log(err.message));
