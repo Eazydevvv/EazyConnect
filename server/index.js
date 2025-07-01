@@ -3,7 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
-import messageRoutes from './routes/messagesRoutes.js';
+import messagesRoutes from './routes/MessagesRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -28,7 +28,7 @@ mongoose.connect(process.env.DATABASE_URL)
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/messages', messageRoutes);
+app.use('/api/messages', messagesRoutes);
 
 // Root route - fixes the "Cannot GET /" error
 app.get('/', (req, res) => {
