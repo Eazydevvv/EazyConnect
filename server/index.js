@@ -16,20 +16,23 @@ const app = express();
 const port = process.env.PORT || 3001;
 const databaseUrl =  process.env.DATABASE_URL;
 
-const allowedOrigins = process.env.ORIGIN?.split(",") || [];
+const allowedOrigins = process.env.ORIGIN?.split(",").map(origin => origin.trim());
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman or curl)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.error("Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
   })
 );
+
 
 
   
