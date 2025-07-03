@@ -15,10 +15,6 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 const databaseUrl =  process.env.DATABASE_URL;
-const allowedOrigins = [
-    "http://localhost:5173", // For local development
-    "https://eazy-connect-app.vercel.app" // Your live Vercel frontend
-  ];
 
 app.use(cors({
     origin: process.env.ORIGIN,
