@@ -16,18 +16,20 @@ const app = express();
 const port = process.env.PORT || 3001;
 const databaseUrl =  process.env.DATABASE_URL;
 
+const allowedOrigins = process.env.ORIGIN?.split(",") || [];
+
 app.use(cors({
-    origin: function (origin, callback) {
-      const allowedOrigins = process.env.ORIGIN.split(',');
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    credentials: true,
-  }));
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
+
   
 
 app.use("/uploads/profiles", express.static("uploads/profiles"));
