@@ -23,7 +23,7 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (like Postman or curl)
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+        callback(null, true); 
       } else {
         console.error("Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));

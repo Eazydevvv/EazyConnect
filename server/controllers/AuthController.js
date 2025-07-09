@@ -57,6 +57,7 @@ export const login = async (request, response, next) => {
 
     }
     response.cookie("jwt", createToken(user.email, user.id), {
+      httpOnly: true,
       maxAge,
       secure: true,
       sameSite: "None",
