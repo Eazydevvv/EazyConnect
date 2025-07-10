@@ -31,17 +31,20 @@ const MessageBar = () => {
         setMessage((msg) => msg + emoji.emoji)
     }
     const handleSendMessage = async () => {
+        if (!message.trim()) return;
         if (selectedChatType === "contact") {
-            socket.emit("sendMessage", {
-                sender: userInfo.id,
-                content: message,
-                recipient: selectedChatData._id,
-                messageType: "text",
-                fileUrl: undefined
-            })
+          socket.emit("sendMessage", {
+            sender: userInfo.id,
+            content: message,
+            recipient: selectedChatData._id,
+            messageType: "text",
+            fileUrl: undefined
+          });
+      
+          setMessage(""); // ✅ This clears the input
         }
-
-    };
+      };
+      
 
     const handleAttachmentClick = () => {
         if (fileInputRef.current) {
