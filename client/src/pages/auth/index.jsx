@@ -11,12 +11,18 @@ import { apiClient } from "../../lib/api-client"
 import { LOGIN_ROUTES, SIGNUP_ROUTES } from "../../utils/constant"
 import { useNavigate } from "react-router-dom"
 import { useAppStore } from "../../store"
+import { FiEye, FiEyeOff } from "react-icons/fi";
+
 const Auth = () => {
     const navigate = useNavigate()
-    const {setUserInfo} = useAppStore();
+    const { setUserInfo } = useAppStore();
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
 
     const validateLogin = () => {
         if (!email.length) {
@@ -28,7 +34,7 @@ const Auth = () => {
             return false;
 
         }
-       
+
 
         return true;
     }
@@ -43,7 +49,7 @@ const Auth = () => {
             return false;
 
         }
-        
+
         if (password !== confirmPassword) {
             toast.error("Password does not match")
             return false;
@@ -56,34 +62,45 @@ const Auth = () => {
 
     const handleLogin = async () => {
         if (validateLogin()) {
-            const response = await apiClient.post(LOGIN_ROUTES, { email, password }, { withCredentials: true }
-
-            );
-            if(response.data.user.id){
-                setUserInfo(response.data.user)
-                toast.success("Login successful!");
-               if(response.data.user.profileSetup) navigate("/chat");
-               else navigate("/profile");
-            };
-            console.log({response});
+            setLoading(true);
+            try {
+                const response = await apiClient.post(LOGIN_ROUTES, { email, password }, { withCredentials: true });
+                if (response.data.user.id) {
+                    setUserInfo(response.data.user);
+                    toast.success("Login successful!");
+                    navigate(response.data.user.profileSetup ? "/chat" : "/profile");
+                }
+            } catch (error) {
+                toast.error("Login failed.");
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
 
     const handleSignup = async () => {
         if (validateSignup()) {
-            const response = await apiClient.post(SIGNUP_ROUTES,
-                { email, password },
-                { withCredentials: true });
-                if(response.status===201){
-                setUserInfo(response.data.user)
-
+            setLoading(true);
+            try {
+                const response = await apiClient.post(SIGNUP_ROUTES,
+                    { email, password },
+                    { withCredentials: true }
+                );
+                if (response.status === 201) {
+                    setUserInfo(response.data.user);
                     toast.success("Signup successful!");
                     navigate("/profile");
                 }
-            console.log({ response });
+            } catch (error) {
+                toast.error("Signup failed.");
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
         }
     };
+
     return (
         <div className=" h-[100vh] w-[100vw] flex items-center justify-center">
             <div className="h-[80vh] bg-white border-2 border-white text-opacity-90 shadow-2xl w-[80vw] md:w-[90vw] lg:w-[70vw] xl:w-[60vw] rounded-3xl grid xl:grid-cols-2">
@@ -108,55 +125,89 @@ const Auth = () => {
                                 >Sign Up</TabsTrigger>
                             </TabsList>
                             <TabsContent className="flex flex-col gap-5 mt-10" value="login">
-
                                 <Input
                                     placeholder="Email"
-                                    type={"email"}
-                                    className={"rounded-full p-6"}
+                                    type="email"
+                                    className="rounded-full p-6"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
 
-                                <Input
-                                    placeholder="Password"
-                                    type={"password"}
-                                    className={"rounded-full p-6"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                                <Button className={"rounded-full p-6"} onClick=
-                                    {handleLogin}>Sign in
+                                <div className="relative">
+                                    <Input
+                                        placeholder="Password"
+                                        type={showPassword ? "text" : "password"}
+                                        className="rounded-full p-6 pr-12"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                    <div
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <FiEyeOff /> : <FiEye />}
+                                    </div>
+                                </div>
+
+                                <Button
+                                    className="rounded-full p-6"
+                                    onClick={handleLogin}
+                                    disabled={loading}
+                                >
+                                    {loading ? "Signing in..." : "Sign in"}
                                 </Button>
                             </TabsContent>
-                            <TabsContent className="flex flex-col gap-5 "
-                                value="signup">
+
+                            <TabsContent className="flex flex-col gap-5" value="signup">
                                 <Input
                                     placeholder="Email"
-                                    type={"email"}
-                                    className={"rounded-full p-6"}
+                                    type="email"
+                                    className="rounded-full p-6"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
 
-                                <Input
-                                    placeholder="Password"
-                                    type={"password"}
-                                    className={"rounded-full p-6"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                                <Input
-                                    placeholder="Confirm Password"
-                                    type={"password"}
-                                    className={"rounded-full p-6"}
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                />
-                                <Button className={"rounded-full p-6"} onClick=
-                                    {handleSignup}>Sign up
-                                </Button>
+                                <div className="relative">
+                                    <Input
+                                        placeholder="Password"
+                                        type={showPassword ? "text" : "password"}
+                                        className="rounded-full p-6 pr-12"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                    <div
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <FiEyeOff /> : <FiEye />}
+                                    </div>
+                                </div>
 
+                                <div className="relative">
+                                    <Input
+                                        placeholder="Confirm Password"
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        className="rounded-full p-6 pr-12"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                    />
+                                    <div
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                                    </div>
+                                </div>
+
+                                <Button
+                                    className="rounded-full p-6"
+                                    onClick={handleSignup}
+                                    disabled={loading}
+                                >
+                                    {loading ? "Signing up..." : "Sign up"}
+                                </Button>
                             </TabsContent>
+
                         </Tabs>
                     </div>
                 </div>

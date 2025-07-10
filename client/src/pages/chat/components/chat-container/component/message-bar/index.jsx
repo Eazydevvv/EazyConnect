@@ -41,7 +41,7 @@ const MessageBar = () => {
             fileUrl: undefined
           });
       
-          setMessage(""); // ✅ This clears the input
+          setMessage("");
         }
       };
       
