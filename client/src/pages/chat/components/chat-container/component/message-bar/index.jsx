@@ -15,6 +15,8 @@ const MessageBar = () => {
     const { selectedChatType, selectedChatData, userInfo , setIsUploading , setFileUploadProgress, } = useAppStore()
     const [message, setMessage] = useState("");
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+    const messageSendSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-message-pop-alert-2354.mp3");
+
     useEffect(() => {
         function handleClickOutside(event) {
             if (emojiRef.current && !emojiRef.current.contains(event.target)) {
@@ -32,6 +34,7 @@ const MessageBar = () => {
     }
     const handleSendMessage = async () => {
         if (!message.trim()) return;
+        
         if (selectedChatType === "contact") {
           socket.emit("sendMessage", {
             sender: userInfo.id,
@@ -41,9 +44,13 @@ const MessageBar = () => {
             fileUrl: undefined
           });
       
+          const messageSendSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-message-pop-alert-2354.mp3");
+          messageSendSound.play();
+      
           setMessage("");
         }
       };
+      
       
 
     const handleAttachmentClick = () => {
